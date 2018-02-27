@@ -1,0 +1,41 @@
+
+#goto{
+	position:absolute;
+	right:2em;
+	bottom:2em;
+	width:3em;
+	height:9em;
+	opacity:0.8;
+	text-align:center;
+}
+#goto div{
+	float:left;
+	width:3em;
+	height:3em;
+	border-bottom:white thin solid;
+}
+#goto > .hover{
+	float:left;
+	position:absolute;
+	width:3em;
+	height:calc(9em + 2px);
+	background-color:rgba(255,255,255,0.6);
+}
+#goto:hover > .hover{
+	display:none;
+}
+#goto div{
+	transition:all 0.1s linear 0s;
+}
+#goto div:hover {
+	border-radius:1.5em;
+}
+#goto > #Top > div{
+	background-color:Violet;
+}
+#goto > #Back > div{
+	background-color:Lime;
+}
+#goto > #home_page > div{
+	background-color:DodgerBlue;
+}

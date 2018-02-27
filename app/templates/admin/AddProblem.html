@@ -1,0 +1,23 @@
+{% block manage_style %}
+
+{% endblock %}
+{% block manage %}
+<center>
+	<form method="post" action="/admin/addproblem">
+	<table>
+	<tr>
+		<td>题目名称</td>
+		<td><input name="problemname" type="text"></td>
+	</tr>
+	<tr>
+		<td>题目描述</td>
+		<td><textarea name="problemstatus"></textarea></td>
+	</tr>
+	<tr>
+		<td>题目示例</td>
+		<td><textarea name="problemtemplate"></textarea></td>
+	</tr>
+	</table>
+	</form>
+</center>
+{% endblock %}

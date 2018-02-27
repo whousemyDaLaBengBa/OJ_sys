@@ -1,0 +1,255 @@
+{% extends "template.html" %}
+{% block hasUser %}
+<link rel="stylesheet" href="{{url_for('static', filename = 'css/menu_without_user.css')}}">
+{% endblock %}
+{% block custom_style %}
+<style>
+#registerform{
+	padding-top:5em;
+}
+#registerform > form{
+	border: 1px solid #d1d5da;
+	border-radius: 3px;
+	width:30%;
+	min-width:20em;
+	margin:auto;
+	padding:1em 3em;
+}
+#registerform label{
+	position: static;
+	font-weight: 600;
+	line-height:1.5em;
+}
+#registerform .form-control{
+	width: 100%;
+	margin-right: 5px;
+	background-color: #fafbfc;
+	min-height: 34px;
+	padding: 6px 8px;
+	line-height: 20px;
+	color: #24292e;
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	border: 1px solid #d1d5da;
+	border-radius: 3px;
+	outline: none;
+	box-shadow: inset 0 1px 2px rgba(27,31,35,0.075);
+}
+#registerform .form-control:focus{
+	background-color: #fff;
+	border-color: #2188ff;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(27,31,35,0.075), 0 0 0 0.2em rgba(3,102,214,0.3);
+}
+#registerform .note {
+	min-height: 17px;
+	margin: 4px 0 2px;
+	font-size: 12px;
+	color: #586069;
+}
+#registerform dd{
+	-webkit-margin-start: 0;
+}
+*.error{
+	color:red;
+	display:none;
+}
+#signup_button {
+	color: #fff;
+	background-color: #28a745;
+	background-image: linear-gradient(-180deg, #34d058 0%, #28a745 90%);
+	background-repeat: repeat-x;
+	background-position: -1px -1px;
+	background-size: 110% 110%;
+	padding: 6px 12px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 20px;
+	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+	user-select: none;
+	border: 1px solid rgba(27,31,35,0.2);
+	border-radius: 0.25em;
+	width:100%;
+}
+#signup_button:hover {
+	background-color: #269f42;
+	background-image: linear-gradient(-180deg, #2fcb53 0%, #269f42 90%);
+	background-position: -.5em;
+	border-color: rgba(27,31,35,0.5);
+}
+#signup_button:focus{
+	box-shadow: 0 0 0 0.2em rgba(52,208,88,0.4);
+}
+</style>
+{% endblock %}
+{% block custom_script %}
+<script>
+(function($){
+	$.fn.shake=function(range=5,sideTime=50){
+		this.each(function(){
+			var elem=$(this)
+			elem.animate({"marginLeft":"-="+range+"px"},sideTime)
+				.animate({"marginLeft":"+="+range*2+"px"},sideTime*2)
+				.animate({"marginLeft":"-="+range*2+"px"},sideTime*2)
+				.animate({"marginLeft":"+="+range*2+"px"},sideTime*2)
+				.animate({"marginLeft":""},sideTime);
+		});
+		return this;
+	};
+})(jQuery);
+function validateEmail(email) {
+	var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return re.test(email);
+}
+function validatePass(pass){
+	var re=[/[a-zA-Z]/,/[0-9]/];
+	if(pass.length<8)return false;
+	else if(re[0].test(pass) && re[1].test(pass))return true;
+	return false;
+}
+function validateName(name){
+	if(1<=name.length && name.length<=15){
+		//return btoa(name);
+		return name;
+	}
+	return false;
+}
+$(document).ready(function(){
+	var valid_email=false,valid_name=false;
+	$("#username").on("keyup",function(e){
+		$("#registerform .error.name").hide();
+		var name=validateName($(e.currentTarget).val());
+		if(name) $.get("/register?checkname="+name,function(data,status){
+			data=eval(data);
+			if(false===data){
+				$("#registerform .error.name").show();
+				$(e.currentTarget).css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+			}else{
+				$("#registerform .error.name").hide();
+				$(e.currentTarget).css({"border":"","boxShadow":""});
+				valid_name=true;
+			}
+		});
+	});
+	$("#email").on("keyup",function(e){
+		var email=$(e.currentTarget);
+		if(validateEmail(email.val())){
+			$("#registerform .notvalid.mail").hide();
+			$("#registerform .exist.mail").hide();
+			email.css({"border":"","boxShadow":""});
+			$.get("/register?checkemail="+email.val().toString(),function(data,status){
+				data=eval(data);
+				if(false===data){
+					$("#registerform .exist.mail").show();
+					email.css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+				}else{
+					$("#registerform .exist.mail").hide();
+					email.css({"border":"","boxShadow":""});
+					valid_email=true;
+				}
+			});
+		}else if(-1!=email.val().toString().indexOf("@")){
+			$("#registerform .notvalid.mail").show();
+			email.css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+		}
+	});
+	$("#pass").on("keyup",function(e){
+		var pass=$(e.currentTarget);
+		$("#confirm").val("");
+		if(!validatePass(pass.val())){
+			$("#registerform .note.pass").css("color","red");
+			$("#confirm").attr({"disabled":"disabled","readonly":"true"});
+		}else{
+			$("#registerform .note.pass").css("color","#586069");
+			$("#confirm").removeAttr("disabled");
+			$("#confirm").removeAttr("readonly");
+		} 
+	});
+	$("#confirm").on("keyup",function(e){
+		var confirm=$(e.currentTarget).val();
+		var pass=$("#pass").val();
+		if(pass!=confirm){
+			$("#registerform .note.confirm").css("color","red");
+			$(e.currentTarget).css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+		}else {
+			$("#registerform .note.confirm").css("color","#586069");
+			$(e.currentTarget).css({"border":"","boxShadow":""});
+		}
+	});
+	$("#signup_button").on("click",function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		if($("#pass").val()!=$("#confirm").val()) {
+			$("#confirm").css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+			$("#confirm").shake();
+		}
+		if(false===valid_email){
+			$("#email").css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+			$("#email").shake();
+		}
+		if(false===valid_name){
+			$("#username").css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+			$("#username").shake();
+		}
+		if(!validatePass($("#pass").val())){
+			$("#pass").css({"border":"1px solid red","boxShadow":"inset 0 1px 2px rgba(255,0,0,0.075), 0 0 0 0.2em rgba(255,0,0,0.3)"});
+			$("#pass").shake();
+		}
+		if($("#pass").val()!=$("#confirm").val() || false===valid_email || false===valid_name || !validatePass($("#pass").val())){
+			e.preventDefault();
+			e.stopPropagation();
+			return;
+		}
+		e.preventDefault();
+		e.stopPropagation();
+		$.post("/register",{
+			//"username":btoa(escape($("#username").val())),
+			//"nickname":btoa(escape($("#nickname").val())),
+			"username":escape($("#username").val()),
+			"nickname":escape($("#nickname").val()),
+			"email":escape($("#email").val()),
+			"password":escape($("#pass").val())
+		},function(data){
+			if(true===eval(data)){
+				$(".register.note").show();
+				setTimeout("window.location.href=\"/\"",3000);
+			}else{
+				$(".register.error").show();
+			}
+		});
+	});
+});
+</script>
+{% endblock %}
+{% block user %}{% endblock %}
+{% block content %}
+<div id="registerform">
+<form method='post' action='/register'>
+<dl>
+<dt><label>用户名*</label></dt>
+<dd><input type="text" name="username" id="username" class="form-control" maxlength="15">
+<p class="error note name" style="color:red;">用户名已被使用</p>
+<p class="note">请输入 1~15 字符的用户名</p></dd>
+<dt><label>昵称</label></dt>
+<dd><input type="text" name="nickname" id="nickname" class="form-control" maxlength="15">
+<p class="note">请输入昵称,可在个人资料中修改</p></dd>
+<dt><label>电子邮箱*</label></dt>
+<dd><input type="text" name="email" id="email" class="form-control">
+<p class="error note exist mail" style="color:red;">此邮箱地址已被使用</p>
+<p class="error note notvalid mail" style="color:red;">请输入有效的邮箱</p></dd>
+<dt><label>密码*</label></dt>
+<dd><input type="password" name="password" id="pass" class="form-control">
+<p class="note pass">请输入至少8位密码, 至少包含1个字母和一个数字</p></dd>
+<dt><label>确认密码*</label></dt>
+<dd><input type="password" name="confirm" id="confirm" class="form-control" disabled="disabled" readonly="readonly">
+<p class="note confirm">请重新输入密码</p></dd>
+</dl>
+<button type="submit" id="signup_button">创建账户</button>
+<p class="note register" style="display:none;">注册成功！<span>3</span>秒后跳转至首页</p>
+<p class="error register">注册失败，请稍后再试</p>
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "../template.html" %}
+{% block custom_style %}
+<style>
+#sideBar.side {
+	display:block;
+	color:black;
+}
+#sideBar.side.selected {
+	background-color:black;
+	color:white;
+}
+#sideBar {
+	min-width:10em;
+	width:20%;
+	height:calc(100% - 2em);
+	position:fixed;
+	top:2em;
+}
+#M_content {
+	width:80%;
+	margin-left:20%;
+}
+{% block manage_style %}{% endblock %}
+</style>
+{% endblock %}
+{% block content %}
+<div>
+<div id="sideBar">
+<ul>
+	<a href="/admin/adduser"><li class="side{{ ' selected' if 'addUser'==currentStage else '' }}">添加用户</li></a>
+	<a href="/admin/addmultiuser"><li class="side{{ ' selected' if 'addMulUser'==currentStage else '' }}">添加多个用户</li></a>
+	<a href="/admin/manageuser"><li class="side{{ ' selected' if 'mngUser'==currentStage else '' }}">管理用户</li></a>
+	<a href="/admin/addproblem"><li class="side{{ ' selected' if 'addProb'==currentStage else '' }}">添加题目</li></a>
+	<a href="/admin/manageproblem"><li class="side{{ ' selected' if 'mngUser'==currentStage else '' }}">管理题目</li></a>
+</ul>
+</div>
+<div id="M_content">{% block manage %}{% endblock %}</div>
+</div>
+{% endblock %}

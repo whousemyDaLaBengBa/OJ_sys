@@ -1,0 +1,272 @@
+{% extends "template.html" %}
+{% block custom_style %}
+<style>
+.list table{
+	line-height:1.5em;
+	border-collapse:collapse;
+}
+.list th{
+	background:skyblue;
+	border-left:thick double black;
+	border-right:thick double black;
+	border-bottom:thin solid black;
+}
+.list td{
+	background-color:inherit;
+}
+#manageAll,.list{
+	float:left;
+}
+#manageAll {
+	width:20%;
+	min-width:10em;
+}
+.list {
+	width:80%;
+	
+}
+.drop {
+	//float:left;
+	min-width:10em;
+	width:25%;
+	cursor:
+}
+.drop > span {
+	cursor:pointer;
+}
+#addUser,#addProb {
+	position:fixed;
+	display:none;
+	background-color:white;
+}
+#addUser > div,#addProb > div {
+	border:thin solid black;
+	float:left;
+	cursor:pointer;
+	min-width:10em;
+	text-align:center;
+}
+#addUser > div.sel {
+	border-bottom:hidden;
+}
+#addUser > form,#addProb > form {
+	border:thin solid black;
+	border-top:hidden;
+	cursor:pointer;
+	display:none;
+	min-width:calc(20em + 1px);
+	width:20%;
+	padding:1em 0;
+}
+#addUser > form p,#addProb > form p {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+	line-height:2em;
+	text-align:center;
+}
+#addUser > form input[type=text],#addProb > form input[type=text] {
+    width:10em;
+}
+#addUser > form.sel {
+	display:block;
+}
+table {
+	width:100%;
+}
+th.sel {
+	width:1.5em;
+}
+th.Uname {
+	min-width:10em;
+	width:calc(30% - 2em);
+	overflow:hidden;
+}
+th.PID {
+	min-width:10em;
+	width:10%;
+	overflow:hidden;
+}
+th.Pname {
+	min-width:10em;
+	width:20%;
+	overflow:hidden;
+}
+th.tag {
+	min-width:10em;
+	width:calc(50% - 2em);
+	overflow:hidden;
+}
+th.nick {
+	min-width:10em;
+	width:30%
+	overflow:hidden;
+}
+th.mail {
+	min-width:10em;
+	width:30%
+	overflow:hidden;
+}
+th.pass {
+	min-width:5em;
+	overflow:hidden;
+}
+#title {
+	text-align:center;
+	padding-top:1em;
+}
+#title h3{
+    -webkit-margin-after: 0;
+}
+#doSomething {
+	display:none;
+}
+</style>
+{% endblock %}
+{% block custom_script %}
+<script>
+function setCookie(name,value,expire_days){
+	var d=new Date();
+	if(undefined===expire_days)d.setTime(d.getTime() + 3650*24*60*60*1000);
+	else d.setTime(d.getTime() + expire_days*24*60*60*1000);
+	document.cookie = name + "="+ escape(value) + ";expires=" + exp.toGMTString();
+}
+function getCookie(name){
+	if(undefined===name){
+		var cookies=document.cookie.match(/.*?=.*?;/g);
+		var ret=[];
+		for (var i=0;i<cookies.length;i++){
+			ret[substr(0,cookies[i].indexOf("="))]=cookies[i].substr(cookies[i].indexOf("=")+1).split(";")[0];
+		}
+		return ret;
+	}
+	else{
+		var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+		if(arr=document.cookie.match(reg))
+			return unescape(arr[2]); 
+		else 
+			return null; 
+	}
+}
+function createElem(values,type,id,klass,style){
+	var ret="";
+	for(var i in values){
+		ret+="<"+type+(id[i]?" id=\""+id[i]+"\"":"")+(klass[i]?" class=\""+klass[i]+"\"":"")+(style[i]?" style=\""+style[i]+"\"":"")+">"+values[i]+"</"+type+">";
+	}
+	return ret;
+}
+function M_User(page){
+	if(undefined===page){
+		$(".list thead tr").html(createElem(["","UserName","NickName","Email","Password"],"th",[],["sel","Uname","nick","mail","pass"],[]));
+		$("#manageAll").html("");
+		//开始用户管理的事件处理
+		addUserDiv.children("input[type=submit]").click(function(){
+			var submit_URL="";
+			if(addUserForm[0].hasClass("sel")){
+				submit_URL+="/admin/adduser?";
+				submit_URL+="username="+$(addUserForm[0].find("input[name=\"username\"]")).val();
+				submit_URL+="&password="+$(addUserForm[0].find("input[name=\"password\"]")).val();
+				submit_URL+="&isAdmin="+$(addUserForm[0].find("input[name=\"isAdmin\"]")).val();
+			}else if(addUserForm[1].hasClass("sel")){
+				submit_URL+="/admin/addmultiuser?";
+				submit_URL+="st="+$(addUserForm[1].find("input[name=\"st\"]")).val();
+				submit_URL+="&en="+$(addUserForm[1].find("input[name=\"en\"]")).val();
+			}
+			console.log(submit_URL);
+			$.get(submit_URL,function(data){
+				console.log(data);
+			});
+		});
+		addUserSelector[0].click(function(){
+			addUserSelector[0].addClass("sel");
+			addUserSelector[1].removeClass("sel");
+			addUserForm[0].addClass("sel");
+			addUserForm[1].removeClass("sel");
+		});
+		addUserSelector[1].click(function(){
+			addUserSelector[1].addClass("sel");
+			addUserSelector[0].removeClass("sel");
+			addUserForm[1].addClass("sel");
+			addUserForm[0].removeClass("sel");
+		});
+		addUser.children("span").click(function(){
+			addUserDiv.toggle();
+		});
+		$("#manageAll").append(addUser).append(resetUser).append(delUser);
+		$("#title > h3").text("用户管理");
+	}else {
+		$.get("/admin?getUser=1&page="+page,function(data,status){
+			
+		});
+	}
+}
+function M_Problem(page){
+	if(undefined===page){
+		var list_th=["","题目ID","题目名","Tag"];
+		$(".list thead tr").html(createElem(["","题目ID","题目名","Tag"],"th",[],["sel","Pid","Pname","Tag"],[]));
+		addProblem.children("span").click(function(){
+			
+		});
+		$("#manageAll").append(addUser).append(resetUser).append(delUser);
+		$("#title > h3").text("题目管理");
+		$("#manageAll").html("");
+		$("#manageAll").append(addProblem).append(delProblem);
+		$(".list thead tr").html(createElem(list_th,"th",[],["sel","PID","Pname","tag"],[]));
+		$("#title > h3").text("题目管理");
+	}else {
+		$.get("/admin?getUser=1&page="+page,function(data,status){
+			
+		});
+	}
+}
+$(document).ready(function(){
+	var change=$("#exchange");
+	var manage_tab=$("#manageAll");
+	var table=$(".list tbody");
+	if("user"===currentStage){
+		M_User();
+	}else if("problem"===currentStage){
+		M_Problem();
+	}
+});
+//检测当前处于的管理界面
+var currentStage=window.location.href.split('#');
+if(!currentStage[1]) currentStage="user";
+else currentStage=currentStage[1];
+//执行一次以增加效率
+var addUserDiv=$("<div id=\"addUser\"><input type=\"submit\" value=\"提交\" style=\"background:red;margin-right:1em;\"></div>");
+var addUserSelector=[$("<div class=\"sel\">添加单个用户</div>"),$("<div>添加多个用户</div>")];
+var addUserForm=[$("<form method=\"get\" action=\"/admin/adduser\" id=\"oneUser\" class=\"sel\"><p><lable>用户名:</lable><input type=\"text\" name=\"username\" /></p><p><lable>密码:</lable><input type=\"text\" name=\"password\" /></p><p><input type=\"checkbox\" name=\"isAdmin\"><lable>是否为管理员</lable></p></form>"),$("<form method=\"get\" action=\"/admin/addmultiuser\" id=\"multiUser\"><p><lable>从:</lable><input type=\"number\" name=\"st\" /></p><p><lable>到:</lable><input type=\"number\" name=\"en\" /></p></form>")];
+addUserDiv.prepend(addUserSelector[1]).prepend(addUserSelector[0]);
+addUserDiv.append(addUserForm[0]).append(addUserForm[1]);
+var addUser=$("<div class=\"drop\"><span>添加用户</span></div>")
+var resetUser=$("<div class=\"drop\"><span>重置所选用户</span></div>")
+var delUser=$("<div class=\"drop important\"><span>删除所选用户</span></div>")
+addUser.append(addUserDiv);
+
+var addProblem=$("<div class=\"drop\"><span>添加题目</span></div>")
+var delProblem=$("<div class=\"drop important\"><span>删除所选题目</span></div>")
+</script>
+{% endblock %}
+{% block content %}
+<div>
+	<div id="title"><h3></h3></div>
+	<div id="manage">
+		<div id="manageAll">
+			
+		</div>
+		<div class="list">
+			<table>
+				<thead>
+					<tr>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+			<div id="Pages"></div>
+		</div>
+		<div id="doSomething"></div>
+	</div>
+</div>
+{% endblock %}
